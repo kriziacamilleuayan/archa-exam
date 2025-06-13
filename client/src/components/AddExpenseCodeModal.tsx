@@ -1,22 +1,68 @@
+import { useState } from "react";
 import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Fade from "@mui/material/Fade";
 import Typography from "@mui/material/Typography";
-import { Button, Stack, styled } from "@mui/material";
+import {
+  Button,
+  FormControl,
+  FormHelperText,
+  Input,
+  InputLabel,
+  Stack,
+  styled,
+} from "@mui/material";
+import { axios } from "@api/axios";
 
 type AddExpenseCodeModalProps = {
   open: boolean;
   setOpen: (value: boolean) => void;
+  data: { id: string };
+  getAllData: () => void;
 };
 
 const AddExpenseCodeModal = (props: AddExpenseCodeModalProps) => {
-  const { open, setOpen } = props;
+  const { open, setOpen, data } = props;
+  const [loading, setLoading] = useState(false);
+  const [code, setCode] = useState("");
+  const [description, setDescription] = useState("");
+  const [descriptionError, setDescriptionError] = useState(false);
 
   const handleClose = () => setOpen(false);
 
-  const handleAddExpenseCode = () => {
-    // axios add expense code
+  const handleAddExpenseCode = async () => {
+    try {
+      setLoading(true);
+      await axios.post(`/api/expense-management/${data.id}/expense-codes`, {
+        code,
+        description,
+      });
+      await props.getAllData();
+      setLoading(false);
+      handleClose();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleChangeCode = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+    setCode(value);
+  };
+
+  const handleChangeDescription = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { value } = event.target;
+    setDescription(value);
+
+    if (value === "") {
+      setDescriptionError(true);
+      return;
+    }
+
+    setDescriptionError(false);
   };
 
   return (
@@ -41,13 +87,38 @@ const AddExpenseCodeModal = (props: AddExpenseCodeModalProps) => {
           >
             Add Expense Code
           </Typography>
-          hello body
+          <Stack spacing={2} p={4}>
+            <FormControl>
+              <InputLabel htmlFor="category-name">Code</InputLabel>
+              <Input
+                id="category-name"
+                aria-describedby="name-helper-text"
+                onChange={handleChangeCode}
+                value={code}
+              />
+            </FormControl>
+            <FormControl>
+              <InputLabel htmlFor="category-title">Description</InputLabel>
+              <Input
+                id="category-title"
+                aria-describedby="desc-helper-text"
+                onChange={handleChangeDescription}
+                value={description}
+              />
+              {descriptionError && (
+                <FormHelperText id="desc-helper-text" sx={{ color: "red" }}>
+                  required
+                </FormHelperText>
+              )}
+            </FormControl>
+          </Stack>
           <FooterContainerComponent>
             <Button
               color="success"
               variant="outlined"
               sx={{ mr: "8px" }}
               onClick={handleAddExpenseCode}
+              loading={loading}
             >
               Add
             </Button>

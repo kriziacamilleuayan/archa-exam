@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { axios } from "@api/axios";
 import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
@@ -12,15 +14,24 @@ type DeleteCategoryModalProps = {
     id: string;
     title: string;
   };
+  getAllData: () => void;
 };
 
 const DeleteCategoryModal = (props: DeleteCategoryModalProps) => {
   const { open, setOpen, data } = props;
-
+  const [loading, setLoading] = useState(false);
   const handleClose = () => setOpen(false);
 
-  const handleDeletecategory = () => {
-    // axios delete category
+  const handleDeletecategory = async () => {
+    try {
+      setLoading(true);
+      await axios.delete(`/api/expense-management/${data.id}`);
+      await props.getAllData();
+      setLoading(false);
+      handleClose();
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -54,6 +65,7 @@ const DeleteCategoryModal = (props: DeleteCategoryModalProps) => {
               variant="outlined"
               sx={{ mr: "8px" }}
               onClick={handleDeletecategory}
+              loading={loading}
             >
               Delete
             </Button>

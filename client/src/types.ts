@@ -4,7 +4,7 @@ export type ExpenseCodesProps = {
   description: string;
 };
 
-export type CategoryCardProps = {
+export type CategoryProps = {
   id: string;
   name: string;
   title: string;

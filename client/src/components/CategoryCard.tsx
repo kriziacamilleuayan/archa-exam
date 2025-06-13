@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { Card, Stack, styled, Typography } from "@mui/material";
 
-import type { CategoryCardProps } from "@src/types";
+import type { CategoryProps } from "@src/types";
 import ExpenseCode from "@components/ExpenseCode";
 import Button from "@components/Button";
 import AddExpenseCodeModal from "@components/AddExpenseCodeModal";
 import DeleteCategoryModal from "@components/DeleteCategory";
 
 import DeleteIcon from "@mui/icons-material/Delete";
+
+type CategoryCardProps = CategoryProps & {
+  getAllData: () => void;
+};
 
 const CategoryCard = (props: CategoryCardProps) => {
   const { title, id } = props;
@@ -54,11 +58,14 @@ const CategoryCard = (props: CategoryCardProps) => {
       <AddExpenseCodeModal
         open={openAddExpenseCodeModal}
         setOpen={setOpenAddExpenseCodeModal}
+        getAllData={props.getAllData}
+        data={{ id }}
       />
       <DeleteCategoryModal
         open={openDeleteCategoryModal}
         setOpen={setOpenDeleteCategoryModal}
         data={{ id, title }}
+        getAllData={props.getAllData}
       />
     </>
   );
