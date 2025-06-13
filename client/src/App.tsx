@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { axios } from "@api/axios";
-import Button from "@components/Button";
 import { Stack, styled, Typography } from "@mui/material";
+
+import Button from "@components/Button";
 import Container from "@components/Container";
 import CategoryCard from "@components/CategoryCard";
-import type { CategoryCardProps } from "@src/types";
 import AddCategoryModal from "@components/AddCategoryModal";
+import type { CategoryCardProps } from "@src/types";
 
 function App() {
   const [data, setData] = useState<CategoryCardProps[]>([]);

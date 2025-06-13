@@ -1,17 +1,25 @@
 import { useState } from "react";
 import { Card, Stack, styled, Typography } from "@mui/material";
+
 import type { CategoryCardProps } from "@src/types";
 import ExpenseCode from "@components/ExpenseCode";
-import DeleteIcon from "@mui/icons-material/Delete";
 import Button from "@components/Button";
 import AddExpenseCodeModal from "@components/AddExpenseCodeModal";
+import DeleteCategoryModal from "@components/DeleteCategory";
+
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const CategoryCard = (props: CategoryCardProps) => {
-  const { title } = props;
+  const { title, id } = props;
   const [openAddExpenseCodeModal, setOpenAddExpenseCodeModal] = useState(false);
+  const [openDeleteCategoryModal, setOpenDeleteCategoryModal] = useState(false);
 
   const handleAddExpenseCode = () => {
     setOpenAddExpenseCodeModal(true);
+  };
+
+  const handleDeleteCategory = () => {
+    setOpenDeleteCategoryModal(true);
   };
 
   return (
@@ -25,22 +33,32 @@ const CategoryCard = (props: CategoryCardProps) => {
             {title}
           </Typography>
 
-          <Button startIcon={<DeleteIcon />}>Delete</Button>
+          <Button onClick={handleDeleteCategory} startIcon={<DeleteIcon />}>
+            Delete
+          </Button>
         </TitleComponent>
 
         <Stack px={2} spacing={1}>
           <ExpenseCodeComponent>Expense Codes</ExpenseCodeComponent>
+
           {props.expense_codes.map((item, i) => (
             <ExpenseCode {...item} key={`expense-code-${i}`} />
           ))}
+
           <Button size="small" onClick={handleAddExpenseCode}>
             Add Expense Code
           </Button>
         </Stack>
       </CardComponet>
+
       <AddExpenseCodeModal
         open={openAddExpenseCodeModal}
         setOpen={setOpenAddExpenseCodeModal}
+      />
+      <DeleteCategoryModal
+        open={openDeleteCategoryModal}
+        setOpen={setOpenDeleteCategoryModal}
+        data={{ id, title }}
       />
     </>
   );
