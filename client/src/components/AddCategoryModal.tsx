@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { axios } from "@api/axios";
 import { Box, Stack, styled, Typography } from "@mui/material";
+import { useSnackbar } from "notistack";
 
 import Input from "@components/Input";
 import Button from "@components/Button";
@@ -20,6 +21,7 @@ type AddCategoryModalProps = {
 };
 
 const AddCategoryModal = (props: AddCategoryModalProps) => {
+  const { enqueueSnackbar } = useSnackbar();
   const { open, setOpen } = props;
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
@@ -45,8 +47,16 @@ const AddCategoryModal = (props: AddCategoryModalProps) => {
       await props.getAllData();
       setLoading(false);
       handleClose();
+
+      enqueueSnackbar(`Successfully added Category ${title}.`, {
+        variant: "success",
+        autoHideDuration: 3000,
+      });
     } catch (err) {
-      console.log(err);
+      enqueueSnackbar(
+        `handleAddcategory ERROR: ${(err as any).request.response} `,
+        { variant: "error", autoHideDuration: 3000 }
+      );
     }
   };
 

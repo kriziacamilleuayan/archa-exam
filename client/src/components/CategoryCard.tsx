@@ -8,6 +8,7 @@ import AddExpenseCodeModal from "@components/AddExpenseCodeModal";
 import DeleteCategoryModal from "@components/DeleteCategory";
 
 import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
 
 type CategoryCardProps = CategoryProps & {
   getAllData: () => void;
@@ -68,7 +69,12 @@ const CategoryCard = (props: CategoryCardProps) => {
             />
           ))}
 
-          <Button size="small" onClick={handleAddExpenseCode}>
+          <Button
+            size="small"
+            onClick={handleAddExpenseCode}
+            startIcon={<AddIcon />}
+            variant="outlined"
+          >
             Add Expense Code
           </Button>
         </Stack>

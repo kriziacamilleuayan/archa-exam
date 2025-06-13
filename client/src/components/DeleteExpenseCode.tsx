@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Box, Stack, styled, Typography } from "@mui/material";
+import { useSnackbar } from "notistack";
 
 import { axios } from "@src/api/axios";
 import type { ExpenseCodesProps } from "@src/types";
@@ -15,6 +16,7 @@ type DeleteExpenseCodeModalProps = {
 
 const DeleteExpenseCodeModal = (props: DeleteExpenseCodeModalProps) => {
   const { open, setOpen, data, getAllData } = props;
+  const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(false);
   const handleClose = () => setOpen(false);
 
@@ -26,8 +28,16 @@ const DeleteExpenseCodeModal = (props: DeleteExpenseCodeModalProps) => {
       await getAllData();
       setLoading(false);
       handleClose();
+
+      enqueueSnackbar(`Successfully deleted Expense Code ${data.code}.`, {
+        variant: "success",
+        autoHideDuration: 3000,
+      });
     } catch (err) {
-      console.log(err);
+      enqueueSnackbar(
+        `handleDeleteExpenseCode ERROR: ${(err as any).request.response} `,
+        { variant: "error", autoHideDuration: 3000 }
+      );
     }
   };
 

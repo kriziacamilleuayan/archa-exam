@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { axios } from "@api/axios";
 import { Box, Stack, styled, Typography } from "@mui/material";
+import { useSnackbar } from "notistack";
 
 import Input from "@components/Input";
 import Button from "@components/Button";
@@ -22,6 +23,7 @@ enum CodeErrorType {
 
 const AddExpenseCodeModal = (props: AddExpenseCodeModalProps) => {
   const { open, setOpen, data } = props;
+  const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(false);
   const [code, setCode] = useState("");
   const [description, setDescription] = useState("");
@@ -45,8 +47,15 @@ const AddExpenseCodeModal = (props: AddExpenseCodeModalProps) => {
       await props.getAllData();
       setLoading(false);
       handleClose();
+      enqueueSnackbar(`Successfully added Expense Code ${code}.`, {
+        variant: "success",
+        autoHideDuration: 3000,
+      });
     } catch (err) {
-      console.log(err);
+      enqueueSnackbar(
+        `handleAddExpenseCode ERROR: ${(err as any).request.response} `,
+        { variant: "error", autoHideDuration: 3000 }
+      );
     }
   };
 

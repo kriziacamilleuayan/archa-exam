@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { axios } from "@api/axios";
 import { Box, Stack, styled, Typography } from "@mui/material";
+import { useSnackbar } from "notistack";
 
 import Button from "@components/Button";
 import Modal from "@components/Modal";
@@ -17,6 +18,7 @@ type DeleteCategoryModalProps = {
 
 const DeleteCategoryModal = (props: DeleteCategoryModalProps) => {
   const { open, setOpen, data, getAllData } = props;
+  const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(false);
   const handleClose = () => setOpen(false);
 
@@ -27,8 +29,16 @@ const DeleteCategoryModal = (props: DeleteCategoryModalProps) => {
       await getAllData();
       setLoading(false);
       handleClose();
+
+      enqueueSnackbar(`Successfully deleted Category ${data.title}.`, {
+        variant: "success",
+        autoHideDuration: 3000,
+      });
     } catch (err) {
-      console.log(err);
+      enqueueSnackbar(
+        `handleDeletecategory ERROR: ${(err as any).request.response} `,
+        { variant: "error", autoHideDuration: 3000 }
+      );
     }
   };
 
