@@ -1,22 +1,88 @@
+import { useState } from "react";
+import { axios } from "@api/axios";
 import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Fade from "@mui/material/Fade";
 import Typography from "@mui/material/Typography";
-import { Button, Stack, styled } from "@mui/material";
+import {
+  Button,
+  FormControl,
+  FormHelperText,
+  Input,
+  InputLabel,
+  Stack,
+  styled,
+} from "@mui/material";
 
 type AddCategoryModalProps = {
   open: boolean;
   setOpen: (value: boolean) => void;
+  getAllData: () => void;
+  handleCheckUnique: (value: string) => boolean;
 };
+
+enum NameErrorType {
+  UNIQUE = "UNIQUE",
+  LOWERCASE = "LOWERCASE",
+}
 
 const AddCategoryModal = (props: AddCategoryModalProps) => {
   const { open, setOpen } = props;
+  const [loading, setLoading] = useState(false);
+  const [name, setName] = useState("");
+  const [title, setTitle] = useState("");
+  const [nameErrorType, setNameErrorType] = useState<null | NameErrorType>(
+    null
+  );
 
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    setName("");
+    setTitle("");
+  };
 
-  const handleAddcategory = () => {
-    // axios add category
+  const handleAddcategory = async () => {
+    try {
+      setLoading(true);
+      await axios.post("/api/expense-management", {
+        name,
+        title,
+      });
+      await props.getAllData();
+      setLoading(false);
+      handleClose();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleChangeName = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+    setName(value);
+
+    if (value === "") {
+      setNameErrorType(null);
+      return;
+    }
+
+    if (!value.match(/^[a-z]+$/)) {
+      setNameErrorType(NameErrorType.LOWERCASE);
+      return;
+    }
+
+    const checkUnique = props.handleCheckUnique(value);
+    console.log(checkUnique);
+    if (checkUnique) {
+      setNameErrorType(NameErrorType.UNIQUE);
+      return;
+    }
+
+    setNameErrorType(null);
+  };
+
+  const handleChangeTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(event.target.value);
   };
 
   return (
@@ -37,13 +103,41 @@ const AddCategoryModal = (props: AddCategoryModalProps) => {
           <Typography id="add-category-modal-title" variant="h6" component="h2">
             Add Category
           </Typography>
-          hello body
+          <Stack spacing={2} p={4}>
+            <FormControl>
+              <InputLabel htmlFor="category-name">Category Name</InputLabel>
+              <Input
+                id="category-name"
+                aria-describedby="name-helper-text"
+                onChange={handleChangeName}
+                value={name}
+              />
+              {nameErrorType && (
+                <FormHelperText id="name-helper-text" sx={{ color: "red" }}>
+                  {nameErrorType === NameErrorType.UNIQUE
+                    ? "name must be unique"
+                    : nameErrorType === NameErrorType.LOWERCASE
+                      ? "name must be lowercase"
+                      : ""}
+                </FormHelperText>
+              )}
+            </FormControl>
+            <FormControl>
+              <InputLabel htmlFor="category-title">Category Title</InputLabel>
+              <Input
+                id="category-title"
+                onChange={handleChangeTitle}
+                value={title}
+              />
+            </FormControl>
+          </Stack>
           <FooterContainerComponent>
             <Button
               color="success"
               variant="outlined"
               sx={{ mr: "8px" }}
               onClick={handleAddcategory}
+              loading={loading}
             >
               Add
             </Button>

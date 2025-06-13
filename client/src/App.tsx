@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { axios } from "@api/axios";
 import { Stack, styled, Typography } from "@mui/material";
 
@@ -12,19 +12,33 @@ function App() {
   const [data, setData] = useState<CategoryCardProps[]>([]);
   const [openAddCategoryModal, setOpenAddCategoryModal] = useState(false);
 
-  useEffect(() => {
-    axios.get("/api/sample").then((data) => {
-      try {
-        setData(data.data.data);
-      } catch (err) {
-        console.log(err);
-      }
-    });
+  const getAllData = useCallback(async () => {
+    try {
+      const result = await axios.get("/api/expense-management");
+      setData(result.data);
+      return;
+    } catch (err) {
+      console.log(err);
+    }
   }, []);
 
   const handleAddCategory = () => {
     setOpenAddCategoryModal(true);
   };
+
+  const handleCheckUnique = useCallback(
+    (value: string) => {
+      const existingName = data.find(
+        (item) => item.name === value.toLowerCase()
+      );
+      return !!existingName;
+    },
+    [data]
+  );
+
+  useEffect(() => {
+    getAllData();
+  }, [getAllData]);
 
   console.log("data", data);
 
@@ -49,6 +63,8 @@ function App() {
       <AddCategoryModal
         open={openAddCategoryModal}
         setOpen={setOpenAddCategoryModal}
+        getAllData={getAllData}
+        handleCheckUnique={handleCheckUnique}
       />
     </Container>
   );
