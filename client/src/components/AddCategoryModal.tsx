@@ -1,19 +1,16 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { axios } from "@api/axios";
-import Backdrop from "@mui/material/Backdrop";
-import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
-import Fade from "@mui/material/Fade";
-import Typography from "@mui/material/Typography";
-import {
-  Button,
-  FormControl,
-  FormHelperText,
-  Input,
-  InputLabel,
-  Stack,
-  styled,
-} from "@mui/material";
+import { Box, Stack, styled, Typography } from "@mui/material";
+
+import Input from "@components/Input";
+import Button from "@components/Button";
+import Modal from "@components/Modal";
+
+enum NameErrorType {
+  REQUIRED = "REQUIRED",
+  UNIQUE = "UNIQUE",
+  LOWERCASE = "LOWERCASE",
+}
 
 type AddCategoryModalProps = {
   open: boolean;
@@ -21,11 +18,6 @@ type AddCategoryModalProps = {
   getAllData: () => void;
   handleCheckUnique: (value: string) => boolean;
 };
-
-enum NameErrorType {
-  UNIQUE = "UNIQUE",
-  LOWERCASE = "LOWERCASE",
-}
 
 const AddCategoryModal = (props: AddCategoryModalProps) => {
   const { open, setOpen } = props;
@@ -35,6 +27,7 @@ const AddCategoryModal = (props: AddCategoryModalProps) => {
   const [nameErrorType, setNameErrorType] = useState<null | NameErrorType>(
     null
   );
+  const disabledButton = !!nameErrorType;
 
   const handleClose = () => {
     setOpen(false);
@@ -58,95 +51,86 @@ const AddCategoryModal = (props: AddCategoryModalProps) => {
   };
 
   const handleChangeName = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = event.target;
-    setName(value);
-
-    if (value === "") {
-      setNameErrorType(null);
-      return;
-    }
-
-    if (!value.match(/^[a-z]+$/)) {
-      setNameErrorType(NameErrorType.LOWERCASE);
-      return;
-    }
-
-    const checkUnique = props.handleCheckUnique(value);
-    console.log(checkUnique);
-    if (checkUnique) {
-      setNameErrorType(NameErrorType.UNIQUE);
-      return;
-    }
-
-    setNameErrorType(null);
+    setName(event.target.value);
   };
 
   const handleChangeTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
   };
 
+  const nameHelperText = useMemo(() => {
+    switch (nameErrorType) {
+      case NameErrorType.UNIQUE:
+        return "name must be unique.";
+      case NameErrorType.LOWERCASE:
+        return "name must be lowercase.";
+      case NameErrorType.REQUIRED:
+        return "name is required.";
+      default:
+        break;
+    }
+  }, [nameErrorType]);
+
+  useEffect(() => {
+    if (name.trim() === "") {
+      setNameErrorType(NameErrorType.REQUIRED);
+      return;
+    }
+
+    if (!name.match(/^[a-z ]+$/)) {
+      setNameErrorType(NameErrorType.LOWERCASE);
+      return;
+    }
+
+    if (props.handleCheckUnique(name)) {
+      setNameErrorType(NameErrorType.UNIQUE);
+      return;
+    }
+
+    setNameErrorType(null);
+  }, [name, props]);
+
   return (
-    <Modal
-      aria-labelledby="add-category-modal-title"
-      open={open}
-      onClose={handleClose}
-      closeAfterTransition
-      slots={{ backdrop: Backdrop }}
-      slotProps={{
-        backdrop: {
-          timeout: 500,
-        },
-      }}
-    >
-      <Fade in={open}>
-        <BoxComponent>
-          <Typography id="add-category-modal-title" variant="h6" component="h2">
-            Add Category
-          </Typography>
-          <Stack spacing={2} p={4}>
-            <FormControl>
-              <InputLabel htmlFor="category-name">Category Name</InputLabel>
-              <Input
-                id="category-name"
-                aria-describedby="name-helper-text"
-                onChange={handleChangeName}
-                value={name}
-              />
-              {nameErrorType && (
-                <FormHelperText id="name-helper-text" sx={{ color: "red" }}>
-                  {nameErrorType === NameErrorType.UNIQUE
-                    ? "name must be unique"
-                    : nameErrorType === NameErrorType.LOWERCASE
-                      ? "name must be lowercase"
-                      : ""}
-                </FormHelperText>
-              )}
-            </FormControl>
-            <FormControl>
-              <InputLabel htmlFor="category-title">Category Title</InputLabel>
-              <Input
-                id="category-title"
-                onChange={handleChangeTitle}
-                value={title}
-              />
-            </FormControl>
-          </Stack>
-          <FooterContainerComponent>
-            <Button
-              color="success"
-              variant="outlined"
-              sx={{ mr: "8px" }}
-              onClick={handleAddcategory}
-              loading={loading}
-            >
-              Add
-            </Button>
-            <Button color="info" onClick={handleClose}>
-              Close
-            </Button>
-          </FooterContainerComponent>
-        </BoxComponent>
-      </Fade>
+    <Modal open={open} handleClose={handleClose}>
+      <BoxComponent>
+        <Typography
+          id="add-category-modal-title"
+          variant="h5"
+          sx={{ textAlign: "center" }}
+        >
+          Add Category
+        </Typography>
+        <Stack spacing={2} p={4}>
+          <Input
+            formlabel="Category Name"
+            formlabelid="category-name"
+            onChange={handleChangeName}
+            value={name}
+            helperText={nameHelperText}
+          />
+
+          <Input
+            formlabel="Category Title"
+            formlabelid="category-title"
+            onChange={handleChangeTitle}
+            value={title}
+          />
+        </Stack>
+        <FooterContainerComponent>
+          <Button color="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button
+            color="success"
+            variant="contained"
+            onClick={handleAddcategory}
+            loading={loading}
+            disabled={disabledButton}
+          >
+            Add
+          </Button>
+        </FooterContainerComponent>
+      </BoxComponent>
     </Modal>
   );
 };

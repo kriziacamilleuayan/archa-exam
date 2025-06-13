@@ -1,67 +1,70 @@
-import Backdrop from "@mui/material/Backdrop";
-import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
-import Fade from "@mui/material/Fade";
-import Typography from "@mui/material/Typography";
-import { Button, Stack, styled } from "@mui/material";
+import { useState } from "react";
+import { Box, Stack, styled, Typography } from "@mui/material";
+
+import { axios } from "@src/api/axios";
 import type { ExpenseCodesProps } from "@src/types";
+import Modal from "@components/Modal";
+import Button from "@components/Button";
 
 type DeleteExpenseCodeModalProps = {
   open: boolean;
   setOpen: (value: boolean) => void;
-  data: ExpenseCodesProps;
+  data: ExpenseCodesProps & { categoryId: string };
+  getAllData: () => void;
 };
 
 const DeleteExpenseCodeModal = (props: DeleteExpenseCodeModalProps) => {
-  const { open, setOpen, data } = props;
-
+  const { open, setOpen, data, getAllData } = props;
+  const [loading, setLoading] = useState(false);
   const handleClose = () => setOpen(false);
 
-  const handleDeleteExpenseCode = () => {
-    // axios delete category
+  const handleDeleteExpenseCode = async () => {
+    try {
+      const url = `/api/expense-management/${data.categoryId}/expense-codes/${data.code}`;
+      setLoading(true);
+      await axios.delete(url);
+      await getAllData();
+      setLoading(false);
+      handleClose();
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
-    <Modal
-      aria-labelledby="delete-expense-code-modal-title"
-      open={open}
-      onClose={handleClose}
-      closeAfterTransition
-      slots={{ backdrop: Backdrop }}
-      slotProps={{
-        backdrop: {
-          timeout: 500,
-        },
-      }}
-    >
-      <Fade in={open}>
-        <BoxComponent>
-          <Typography
-            id="delete-expense-code-modal-title"
-            variant="h6"
-            component="h2"
+    <Modal open={open} handleClose={handleClose}>
+      <BoxComponent>
+        <Typography
+          id="delete-expense-code-modal-title"
+          variant="h6"
+          sx={{ textAlign: "center" }}
+        >
+          Delete Expense Code
+        </Typography>
+        <Stack my={4}>
+          <Typography sx={{ textAlign: "center" }}>
+            Are you sure you want to delete expense code{" "}
+            <b>
+              {data.code} - {data.description}
+            </b>
+            ?
+          </Typography>
+        </Stack>
+
+        <FooterContainerComponent>
+          <Button color="info" onClick={handleClose}>
+            Close
+          </Button>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={handleDeleteExpenseCode}
+            loading={loading}
           >
-            Delete Expense Code
-          </Typography>
-          <Typography>
-            Are you sure you want to delete expense code {data.code}-
-            {data.description}?
-          </Typography>
-          <FooterContainerComponent>
-            <Button
-              color="error"
-              variant="outlined"
-              sx={{ mr: "8px" }}
-              onClick={handleDeleteExpenseCode}
-            >
-              Delete
-            </Button>
-            <Button color="info" onClick={handleClose}>
-              Close
-            </Button>
-          </FooterContainerComponent>
-        </BoxComponent>
-      </Fade>
+            Delete
+          </Button>
+        </FooterContainerComponent>
+      </BoxComponent>
     </Modal>
   );
 };

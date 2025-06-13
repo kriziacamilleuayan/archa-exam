@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { axios } from "@api/axios";
-import { Stack, styled, Typography } from "@mui/material";
+import { LinearProgress, Stack, styled, Typography } from "@mui/material";
 
 import type { CategoryProps } from "@src/types";
 import Button from "@components/Button";
@@ -8,14 +8,17 @@ import Container from "@components/Container";
 import CategoryCard from "@components/CategoryCard";
 import AddCategoryModal from "@components/AddCategoryModal";
 
-function App() {
+const App = () => {
   const [data, setData] = useState<CategoryProps[]>([]);
   const [openAddCategoryModal, setOpenAddCategoryModal] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const getAllData = useCallback(async () => {
     try {
+      setLoading(true);
       const result = await axios.get("/api/expense-management");
       setData(result.data);
+      setLoading(false);
       return;
     } catch (err) {
       console.log(err);
@@ -52,9 +55,10 @@ function App() {
           Expense Categories
         </HeaderTextComponent>
         <Button onClick={handleAddCategory} color="success">
-          Add
+          Add Category
         </Button>
       </HeaderComponent>
+      {loading && <LinearProgress />}
       <Stack spacing={2}>
         {data.map((item, i) => (
           <CategoryCard
@@ -72,7 +76,7 @@ function App() {
       />
     </Container>
   );
-}
+};
 
 export default App;
 

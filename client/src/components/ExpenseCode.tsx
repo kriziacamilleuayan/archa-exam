@@ -5,7 +5,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import type { ExpenseCodesProps } from "@src/types";
 import DeleteExpenseCodeModal from "@components/DeleteExpenseCode";
 
-const ExpenseCode = (props: ExpenseCodesProps) => {
+const ExpenseCode = (
+  props: ExpenseCodesProps & { categoryId: string; getAllData: () => void }
+) => {
   const [openDeleteExpenseCodeModal, setOpenDeleteExpenseCodeModal] =
     useState(false);
 
@@ -19,8 +21,12 @@ const ExpenseCode = (props: ExpenseCodesProps) => {
         <Typography>
           <strong>{props.code}</strong> - {props.description}
         </Typography>
-        <IconButton aria-label="delete" onClick={handleDeleteExpenseCode}>
-          <DeleteIcon />
+        <IconButton
+          aria-label="delete"
+          size="small"
+          onClick={handleDeleteExpenseCode}
+        >
+          <DeleteIcon sx={{ fontSize: "18px" }} />
         </IconButton>
       </Stack>
 
@@ -28,6 +34,7 @@ const ExpenseCode = (props: ExpenseCodesProps) => {
         open={openDeleteExpenseCodeModal}
         setOpen={setOpenDeleteExpenseCodeModal}
         data={props}
+        getAllData={props.getAllData}
       />
     </>
   );

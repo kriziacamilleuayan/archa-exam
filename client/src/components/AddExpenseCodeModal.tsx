@@ -1,26 +1,24 @@
-import { useState } from "react";
-import Backdrop from "@mui/material/Backdrop";
-import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
-import Fade from "@mui/material/Fade";
-import Typography from "@mui/material/Typography";
-import {
-  Button,
-  FormControl,
-  FormHelperText,
-  Input,
-  InputLabel,
-  Stack,
-  styled,
-} from "@mui/material";
+import { useEffect, useMemo, useState } from "react";
 import { axios } from "@api/axios";
+import { Box, Stack, styled, Typography } from "@mui/material";
+
+import Input from "@components/Input";
+import Button from "@components/Button";
+import Modal from "@components/Modal";
 
 type AddExpenseCodeModalProps = {
   open: boolean;
   setOpen: (value: boolean) => void;
   data: { id: string };
   getAllData: () => void;
+  handleCheckUniqueCode: (value: string) => boolean;
 };
+
+enum CodeErrorType {
+  REQUIRED = "REQUIRED",
+  UNIQUE = "UNIQUE",
+  ALPHANUMERIC = "ALPHANUMERIC",
+}
 
 const AddExpenseCodeModal = (props: AddExpenseCodeModalProps) => {
   const { open, setOpen, data } = props;
@@ -28,8 +26,14 @@ const AddExpenseCodeModal = (props: AddExpenseCodeModalProps) => {
   const [code, setCode] = useState("");
   const [description, setDescription] = useState("");
   const [descriptionError, setDescriptionError] = useState(false);
+  const [codeError, setCodeError] = useState<null | CodeErrorType>(null);
+  const disabledButton = descriptionError || !!codeError;
 
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    setDescription("");
+    setCode("");
+  };
 
   const handleAddExpenseCode = async () => {
     try {
@@ -56,78 +60,92 @@ const AddExpenseCodeModal = (props: AddExpenseCodeModalProps) => {
   ) => {
     const { value } = event.target;
     setDescription(value);
+  };
 
-    if (value === "") {
+  const codeHelperText = useMemo(() => {
+    switch (codeError) {
+      case CodeErrorType.UNIQUE:
+        return "code must be unique.";
+      case CodeErrorType.REQUIRED:
+        return "code is required.";
+      case CodeErrorType.ALPHANUMERIC:
+        return "code must be alphanumeric and not more than 20 characters.";
+      default:
+        break;
+    }
+  }, [codeError]);
+
+  useEffect(() => {
+    if (code.trim() === "") {
+      setCodeError(CodeErrorType.REQUIRED);
+      return;
+    }
+
+    if (
+      !code.match(/^(?:(?=[a-zA-Z]*[0-9])(?=[0-9]*[a-zA-Z])[A-Za-z0-9]{2,20})$/)
+    ) {
+      setCodeError(CodeErrorType.ALPHANUMERIC);
+      return;
+    }
+
+    if (props.handleCheckUniqueCode(code)) {
+      setCodeError(CodeErrorType.UNIQUE);
+      return;
+    }
+
+    setCodeError(null);
+  }, [code, props]);
+
+  useEffect(() => {
+    if (description.trim() === "") {
       setDescriptionError(true);
       return;
     }
 
     setDescriptionError(false);
-  };
+  }, [description]);
 
   return (
-    <Modal
-      aria-labelledby="add-expense-code-modal-title"
-      open={open}
-      onClose={handleClose}
-      closeAfterTransition
-      slots={{ backdrop: Backdrop }}
-      slotProps={{
-        backdrop: {
-          timeout: 500,
-        },
-      }}
-    >
-      <Fade in={open}>
-        <BoxComponent>
-          <Typography
-            id="add-expense-code-modal-title"
-            variant="h6"
-            component="h2"
+    <Modal open={open} handleClose={handleClose}>
+      <BoxComponent>
+        <Typography
+          id="add-expense-code-modal-title"
+          variant="h5"
+          sx={{ textAlign: "center" }}
+        >
+          Add Expense Code
+        </Typography>
+        <Stack spacing={2} p={4}>
+          <Input
+            formlabel="Code"
+            formlabelid="Code"
+            onChange={handleChangeCode}
+            value={code}
+            helperText={codeHelperText}
+          />
+          <Input
+            formlabel="Description"
+            formlabelid="category-title"
+            onChange={handleChangeDescription}
+            value={description}
+            helperText={descriptionError ? "description is required." : ""}
+          />
+        </Stack>
+        <FooterContainerComponent>
+          <Button color="info" onClick={handleClose}>
+            Close
+          </Button>
+          <Button
+            color="success"
+            variant="contained"
+            onClick={handleAddExpenseCode}
+            loading={loading}
+            disabled={disabledButton}
           >
-            Add Expense Code
-          </Typography>
-          <Stack spacing={2} p={4}>
-            <FormControl>
-              <InputLabel htmlFor="category-name">Code</InputLabel>
-              <Input
-                id="category-name"
-                aria-describedby="name-helper-text"
-                onChange={handleChangeCode}
-                value={code}
-              />
-            </FormControl>
-            <FormControl>
-              <InputLabel htmlFor="category-title">Description</InputLabel>
-              <Input
-                id="category-title"
-                aria-describedby="desc-helper-text"
-                onChange={handleChangeDescription}
-                value={description}
-              />
-              {descriptionError && (
-                <FormHelperText id="desc-helper-text" sx={{ color: "red" }}>
-                  required
-                </FormHelperText>
-              )}
-            </FormControl>
-          </Stack>
-          <FooterContainerComponent>
-            <Button
-              color="success"
-              variant="outlined"
-              sx={{ mr: "8px" }}
-              onClick={handleAddExpenseCode}
-              loading={loading}
-            >
-              Add
-            </Button>
-            <Button color="info" onClick={handleClose}>
-              Close
-            </Button>
-          </FooterContainerComponent>
-        </BoxComponent>
-      </Fade>
+            Submit
+          </Button>
+        </FooterContainerComponent>
+      </BoxComponent>
     </Modal>
   );
 };

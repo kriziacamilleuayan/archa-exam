@@ -102,7 +102,7 @@ router.post("/:id/expense-codes", (req: Request, res: Response) => {
 });
 
 router.delete("/:id", (req: Request, res: Response) => {
-  let category = data.find((item) => item.id === req.params.id);
+  const category = data.find((item) => item.id === req.params.id);
   if (!category) {
     res.status(400).send("category does not exists");
     return;
@@ -113,25 +113,23 @@ router.delete("/:id", (req: Request, res: Response) => {
 });
 
 router.delete("/:id/expense-codes/:code", (req: Request, res: Response) => {
-  let category = data.find((item) => item.id === req.params.id);
-  if (!category) {
+  const categoryIdx = data.findIndex((item) => item.id === req.params.id);
+  if (categoryIdx < 0) {
     res.status(400).send("category does not exists");
     return;
   }
 
-  const expenseCodeIndex = data.findIndex((item) => item.id === req.params.id);
-  let expenseCode = data[expenseCodeIndex].expense_codes.find(
-    (item) => item.id === req.params.code
+  const expenseCodeIdx = data[categoryIdx].expense_codes.findIndex(
+    (item) => item.code === req.params.code
   );
 
-  if (!expenseCode) {
-    res.status(400).send("expenseCode does not exists");
+  if (expenseCodeIdx < 0) {
+    res.status(400).send("expense Code does not exists");
     return;
   }
 
-  const idx = data[expenseCodeIndex].expense_codes.indexOf(expenseCode);
-  data[idx].expense_codes.splice(idx, 1);
-  res.send(expenseCode);
+  data[categoryIdx].expense_codes.splice(expenseCodeIdx, 1);
+  res.send(true);
 });
 
 function validateCategory(categoryObj: CategoryCardProps) {

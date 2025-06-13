@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Card, Stack, styled, Typography } from "@mui/material";
 
 import type { CategoryProps } from "@src/types";
@@ -26,6 +26,16 @@ const CategoryCard = (props: CategoryCardProps) => {
     setOpenDeleteCategoryModal(true);
   };
 
+  const handleCheckUniqueCode = useCallback(
+    (value: string) => {
+      const existingCode = props.expense_codes.find(
+        (item) => item.code.toLowerCase() === value.toLowerCase()
+      );
+      return !!existingCode;
+    },
+    [props.expense_codes]
+  );
+
   return (
     <>
       <CardComponet variant="outlined">
@@ -37,7 +47,11 @@ const CategoryCard = (props: CategoryCardProps) => {
             {title}
           </Typography>
 
-          <Button onClick={handleDeleteCategory} startIcon={<DeleteIcon />}>
+          <Button
+            onClick={handleDeleteCategory}
+            startIcon={<DeleteIcon />}
+            color="error"
+          >
             Delete
           </Button>
         </TitleComponent>
@@ -46,7 +60,12 @@ const CategoryCard = (props: CategoryCardProps) => {
           <ExpenseCodeComponent>Expense Codes</ExpenseCodeComponent>
 
           {props.expense_codes.map((item, i) => (
-            <ExpenseCode {...item} key={`expense-code-${i}`} />
+            <ExpenseCode
+              {...item}
+              getAllData={props.getAllData}
+              categoryId={id}
+              key={`expense-code-${i}`}
+            />
           ))}
 
           <Button size="small" onClick={handleAddExpenseCode}>
@@ -60,6 +79,7 @@ const CategoryCard = (props: CategoryCardProps) => {
         setOpen={setOpenAddExpenseCodeModal}
         getAllData={props.getAllData}
         data={{ id }}
+        handleCheckUniqueCode={handleCheckUniqueCode}
       />
       <DeleteCategoryModal
         open={openDeleteCategoryModal}

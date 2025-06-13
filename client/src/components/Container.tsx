@@ -8,7 +8,13 @@ type ContainerProps = {
 const Container = (props: ContainerProps) => {
   return (
     <ContainerComponent
-      sx={{ ...{ padding: { md: "10vw 10vw", xs: "5vw 5vw" } }, ...props.sx }}
+      sx={{
+        ...{
+          padding: { md: "5vw 0", xs: "5vw 5vw" },
+          width: { lg: "50%", md: "75%", sm: "100%" },
+        },
+        ...props.sx,
+      }}
     >
       {props.children}
     </ContainerComponent>
@@ -17,4 +23,6 @@ const Container = (props: ContainerProps) => {
 
 export default Container;
 
-const ContainerComponent = styled("div")({});
+const ContainerComponent = styled("div")({
+  margin: "0 auto",
+});
