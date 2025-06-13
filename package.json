@@ -1,0 +1,17 @@
+{
+  "name": "archa-exam",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "license": "MIT",
+  "private": "true",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "start": "concurrently \"yarn workspace server start\" \"yarn workspace client dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
