@@ -5,29 +5,32 @@ import { axios } from "@api/axios";
 import { categoryKeys } from "@components/features/category/keys";
 import { useGetAllCategories } from "@components/features/category/queries";
 
+type AddCategoryType = { name: string; title: string };
+type DeleteCategoryType = { id: string };
+
 export const useAddCategoryMutation = () => {
   const { enqueueSnackbar } = useSnackbar();
   const { refetch } = useGetAllCategories();
 
   return useMutation({
     mutationKey: categoryKeys.addCategory(),
-    mutationFn: (data: { name: string; title: string }) =>
+    mutationFn: (data: AddCategoryType) =>
       axios.post("/api/expense-management", {
         name: data.name,
         title: data.title,
       }),
-    onSuccess: async (data) => {
+    onSuccess: async (result) => {
       await refetch();
-      enqueueSnackbar(`Successfully added Category ${data.data.title}.`, {
+      enqueueSnackbar(`Successfully Added Category ${result.data.name}.`, {
         variant: "success",
         autoHideDuration: 3000,
       });
     },
     onError: (err) => {
-      enqueueSnackbar(
-        `handleAddcategory ERROR: ${(err as any).request.response} `,
-        { variant: "error", autoHideDuration: 3000 }
-      );
+      enqueueSnackbar(`Add Category ERROR: ${(err as any).request.response} `, {
+        variant: "error",
+        autoHideDuration: 3000,
+      });
     },
   });
 };
@@ -38,18 +41,18 @@ export const useDeleteCategoryMutation = () => {
 
   return useMutation({
     mutationKey: categoryKeys.deleteCategory(),
-    mutationFn: (data: { id: string }) =>
+    mutationFn: (data: DeleteCategoryType) =>
       axios.delete(`/api/expense-management/${data.id}`),
-    onSuccess: async (data) => {
+    onSuccess: async (result) => {
       await refetch();
-      enqueueSnackbar(`Successfully deleted Category ${data.data.title}.`, {
+      enqueueSnackbar(`Successfully deleted Category ${result.data.code}.`, {
         variant: "success",
         autoHideDuration: 3000,
       });
     },
     onError: (err) => {
       enqueueSnackbar(
-        `handleDeletecategory ERROR: ${(err as any).request.response} `,
+        `Delete Category ERROR: ${(err as any).request.response} `,
         { variant: "error", autoHideDuration: 3000 }
       );
     },

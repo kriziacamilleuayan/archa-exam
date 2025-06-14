@@ -1,12 +1,9 @@
-import { useState } from "react";
 import { Box, Stack, styled, Typography } from "@mui/material";
-import { useSnackbar } from "notistack";
 
-import { axios } from "@api/axios";
 import type { ExpenseCodesProps } from "@src/types";
 import Modal from "@components/common/Modal";
 import Button from "@components/common/Button";
-import { useGetAllCategories } from "@components/features/category/queries";
+import { useDeleteExpenseCodeMutation } from "./mutation";
 
 type DeleteExpenseCodeModalProps = {
   open: boolean;
@@ -16,30 +13,15 @@ type DeleteExpenseCodeModalProps = {
 
 const DeleteExpenseCodeModal = (props: DeleteExpenseCodeModalProps) => {
   const { open, setOpen, data } = props;
-  const { enqueueSnackbar } = useSnackbar();
-  const [loading, setLoading] = useState(false);
+  const { code, categoryId, description } = data;
   const handleClose = () => setOpen(false);
-  const { refetch } = useGetAllCategories();
+
+  const { mutateAsync: deleteExpenseCodeMutateAsync, isPending } =
+    useDeleteExpenseCodeMutation();
 
   const handleDeleteExpenseCode = async () => {
-    try {
-      const url = `/api/expense-management/${data.categoryId}/expense-codes/${data.code}`;
-      setLoading(true);
-      await axios.delete(url);
-      await refetch();
-      setLoading(false);
-      handleClose();
-
-      enqueueSnackbar(`Successfully deleted Expense Code ${data.code}.`, {
-        variant: "success",
-        autoHideDuration: 3000,
-      });
-    } catch (err) {
-      enqueueSnackbar(
-        `handleDeleteExpenseCode ERROR: ${(err as any).request.response} `,
-        { variant: "error", autoHideDuration: 3000 }
-      );
-    }
+    await deleteExpenseCodeMutateAsync({ categoryId, code });
+    handleClose();
   };
 
   return (
@@ -56,7 +38,7 @@ const DeleteExpenseCodeModal = (props: DeleteExpenseCodeModalProps) => {
           <Typography sx={{ textAlign: "center" }}>
             Are you sure you want to delete expense code{" "}
             <b>
-              {data.code} - {data.description}
+              {code} - {description}
             </b>
             ?
           </Typography>
@@ -70,7 +52,7 @@ const DeleteExpenseCodeModal = (props: DeleteExpenseCodeModalProps) => {
             color="error"
             variant="contained"
             onClick={handleDeleteExpenseCode}
-            loading={loading}
+            loading={isPending}
           >
             Delete
           </Button>

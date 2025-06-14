@@ -1,12 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Box, Stack, styled, Typography } from "@mui/material";
-import { useSnackbar } from "notistack";
 
-import { axios } from "@api/axios";
 import Input from "@components/common/Input";
 import Button from "@components/common/Button";
 import Modal from "@components/common/Modal";
-import { useGetAllCategories } from "@components/features/category/queries";
+import { useAddExpenseCodeMutation } from "@components/features/expense-code/mutation";
 
 type AddExpenseCodeModalProps = {
   open: boolean;
@@ -23,13 +21,13 @@ enum CodeErrorType {
 
 const AddExpenseCodeModal = (props: AddExpenseCodeModalProps) => {
   const { open, setOpen, data } = props;
-  const { enqueueSnackbar } = useSnackbar();
-  const [loading, setLoading] = useState(false);
   const [code, setCode] = useState("");
   const [description, setDescription] = useState("");
   const [descriptionError, setDescriptionError] = useState(false);
   const [codeError, setCodeError] = useState<null | CodeErrorType>(null);
-  const { refetch } = useGetAllCategories();
+
+  const { mutateAsync: addExpenseCodeMutateAsync, isPending } =
+    useAddExpenseCodeMutation();
 
   const disabledButton = descriptionError || !!codeError;
 
@@ -40,25 +38,8 @@ const AddExpenseCodeModal = (props: AddExpenseCodeModalProps) => {
   };
 
   const handleAddExpenseCode = async () => {
-    try {
-      setLoading(true);
-      await axios.post(`/api/expense-management/${data.id}/expense-codes`, {
-        code,
-        description,
-      });
-      await refetch();
-      setLoading(false);
-      handleClose();
-      enqueueSnackbar(`Successfully added Expense Code ${code}.`, {
-        variant: "success",
-        autoHideDuration: 3000,
-      });
-    } catch (err) {
-      enqueueSnackbar(
-        `handleAddExpenseCode ERROR: ${(err as any).request.response} `,
-        { variant: "error", autoHideDuration: 3000 }
-      );
-    }
+    await addExpenseCodeMutateAsync({ categoryId: data.id, code, description });
+    handleClose();
   };
 
   const handleChangeCode = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -150,7 +131,7 @@ const AddExpenseCodeModal = (props: AddExpenseCodeModalProps) => {
             color="success"
             variant="contained"
             onClick={handleAddExpenseCode}
-            loading={loading}
+            loading={isPending}
             disabled={disabledButton}
           >
             Submit

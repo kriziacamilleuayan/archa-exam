@@ -119,6 +119,9 @@ router.delete("/:id/expense-codes/:code", (req: Request, res: Response) => {
     return;
   }
 
+  const expenseCode = data[categoryIdx].expense_codes.find(
+    (item) => item.code === req.params.code
+  );
   const expenseCodeIdx = data[categoryIdx].expense_codes.findIndex(
     (item) => item.code === req.params.code
   );
@@ -129,7 +132,7 @@ router.delete("/:id/expense-codes/:code", (req: Request, res: Response) => {
   }
 
   data[categoryIdx].expense_codes.splice(expenseCodeIdx, 1);
-  res.send(true);
+  res.send(expenseCode);
 });
 
 function validateCategory(categoryObj: CategoryProps) {
