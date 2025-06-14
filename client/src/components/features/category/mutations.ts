@@ -45,7 +45,7 @@ export const useDeleteCategoryMutation = () => {
       axios.delete(`/api/expense-management/${data.id}`),
     onSuccess: async (result) => {
       await refetch();
-      enqueueSnackbar(`Successfully deleted Category ${result.data.code}.`, {
+      enqueueSnackbar(`Successfully deleted Category ${result.data.title}.`, {
         variant: "success",
         autoHideDuration: 3000,
       });

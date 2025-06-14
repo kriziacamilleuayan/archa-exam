@@ -18,7 +18,7 @@ export type CategoryProps = {
 
 const data = [
   {
-    id: uuidv4(),
+    id: "marketing1",
     name: "marketing",
     title: "Marketing Expenses",
     expense_codes: [

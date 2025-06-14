@@ -116,15 +116,15 @@ const AddExpenseCodeModal = (props: AddExpenseCodeModalProps) => {
         </Typography>
         <Stack spacing={2} p={4}>
           <Input
-            formlabel="Code"
-            formlabelid="Code"
+            id="code"
+            label="Code"
             onChange={handleChangeCode}
             value={code}
             helperText={codeHelperText}
           />
           <Input
-            formlabel="Description"
-            formlabelid="category-title"
+            id="description"
+            label="Description"
             onChange={handleChangeDescription}
             value={description}
             helperText={descriptionError ? "description is required." : ""}
@@ -139,6 +139,7 @@ const AddExpenseCodeModal = (props: AddExpenseCodeModalProps) => {
             variant="contained"
             onClick={handleAddExpenseCode}
             loading={isPending}
+            aria-label="submit"
             disabled={disabledButton}
           >
             Submit

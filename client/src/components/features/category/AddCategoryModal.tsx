@@ -78,7 +78,7 @@ const AddCategoryModal = (props: AddCategoryModalProps) => {
       return;
     }
 
-    if (!name.match(/^[a-z]+$/)) {
+    if (!name.match(/^[a-z0-9_][a-z0-9_.]+$/)) {
       setNameErrorType(NameErrorType.LOWERCASE);
       return;
     }
@@ -103,16 +103,16 @@ const AddCategoryModal = (props: AddCategoryModalProps) => {
         </Typography>
         <Stack spacing={2} p={4}>
           <Input
-            formlabel="Category Name"
-            formlabelid="category-name"
+            label="Category Name"
+            id="category-name-input"
             onChange={handleChangeName}
             value={name}
             helperText={nameHelperText}
           />
 
           <Input
-            formlabel="Category Title"
-            formlabelid="category-title"
+            id="category-title"
+            label="Category Title"
             onChange={handleChangeTitle}
             value={title}
           />
@@ -125,10 +125,11 @@ const AddCategoryModal = (props: AddCategoryModalProps) => {
             color="success"
             variant="contained"
             onClick={handleAddcategory}
+            aria-label="submit"
             loading={isPending}
             disabled={disabledButton}
           >
-            Add
+            Submit
           </Button>
         </FooterContainerComponent>
       </BoxComponent>
