@@ -1,10 +1,8 @@
-import { useState } from "react";
-import { axios } from "@api/axios";
 import { Box, Stack, styled, Typography } from "@mui/material";
-import { useSnackbar } from "notistack";
 
-import Button from "@components/Button";
-import Modal from "@components/Modal";
+import Button from "@components/common/Button";
+import Modal from "@components/common/Modal";
+import { useDeleteCategoryMutation } from "@components/features/category/mutations";
 
 type DeleteCategoryModalProps = {
   open: boolean;
@@ -13,33 +11,18 @@ type DeleteCategoryModalProps = {
     id: string;
     title: string;
   };
-  getAllData: () => void;
 };
 
 const DeleteCategoryModal = (props: DeleteCategoryModalProps) => {
-  const { open, setOpen, data, getAllData } = props;
-  const { enqueueSnackbar } = useSnackbar();
-  const [loading, setLoading] = useState(false);
+  const { open, setOpen, data } = props;
+  const { mutateAsync: deleteCategoryMutateAsync, isPending } =
+    useDeleteCategoryMutation();
+
   const handleClose = () => setOpen(false);
 
   const handleDeletecategory = async () => {
-    try {
-      setLoading(true);
-      await axios.delete(`/api/expense-management/${data.id}`);
-      await getAllData();
-      setLoading(false);
-      handleClose();
-
-      enqueueSnackbar(`Successfully deleted Category ${data.title}.`, {
-        variant: "success",
-        autoHideDuration: 3000,
-      });
-    } catch (err) {
-      enqueueSnackbar(
-        `handleDeletecategory ERROR: ${(err as any).request.response} `,
-        { variant: "error", autoHideDuration: 3000 }
-      );
-    }
+    await deleteCategoryMutateAsync({ id: data.id });
+    handleClose();
   };
 
   return (
@@ -65,7 +48,7 @@ const DeleteCategoryModal = (props: DeleteCategoryModalProps) => {
             color="error"
             variant="contained"
             onClick={handleDeletecategory}
-            loading={loading}
+            loading={isPending}
           >
             Delete
           </Button>

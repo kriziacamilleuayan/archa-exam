@@ -9,7 +9,7 @@ export type ExpenseCodesProps = {
   description: string;
 };
 
-export type CategoryCardProps = {
+export type CategoryProps = {
   id: string;
   name: string;
   title: string;
@@ -132,7 +132,7 @@ router.delete("/:id/expense-codes/:code", (req: Request, res: Response) => {
   res.send(true);
 });
 
-function validateCategory(categoryObj: CategoryCardProps) {
+function validateCategory(categoryObj: CategoryProps) {
   const schema = Joi.object({
     name: Joi.string().required(),
     title: Joi.string().required(),
@@ -140,7 +140,7 @@ function validateCategory(categoryObj: CategoryCardProps) {
   return schema.validate(categoryObj);
 }
 
-function validateExpenseCode(categoryObj: CategoryCardProps) {
+function validateExpenseCode(categoryObj: CategoryProps) {
   const schema = Joi.object({
     code: Joi.string().max(20).required(),
     description: Joi.string().required(),

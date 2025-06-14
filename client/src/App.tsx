@@ -1,11 +1,16 @@
 import { SnackbarProvider } from "notistack";
-import CategoryList from "@components/CategoryList";
+import CategoryList from "@components/features/category/CategoryList";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+export const queryClient = new QueryClient();
 
 const App = () => {
   return (
-    <SnackbarProvider maxSnack={3}>
-      <CategoryList />
-    </SnackbarProvider>
+    <QueryClientProvider client={queryClient}>
+      <SnackbarProvider maxSnack={3}>
+        <CategoryList />
+      </SnackbarProvider>
+    </QueryClientProvider>
   );
 };
 

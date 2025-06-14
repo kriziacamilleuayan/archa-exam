@@ -11,7 +11,7 @@ const Container = (props: ContainerProps) => {
       sx={{
         ...{
           padding: { md: "5vw 0", xs: "5vw 5vw" },
-          width: { lg: "50%", md: "75%", sm: "100%" },
+          width: { lg: "50%", md: "75%", sm: "90%", xs: "100%" },
         },
         ...props.sx,
       }}

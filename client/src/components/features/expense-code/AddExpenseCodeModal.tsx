@@ -1,17 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
-import { axios } from "@api/axios";
 import { Box, Stack, styled, Typography } from "@mui/material";
 import { useSnackbar } from "notistack";
 
-import Input from "@components/Input";
-import Button from "@components/Button";
-import Modal from "@components/Modal";
+import { axios } from "@api/axios";
+import Input from "@components/common/Input";
+import Button from "@components/common/Button";
+import Modal from "@components/common/Modal";
+import { useGetAllCategories } from "@components/features/category/queries";
 
 type AddExpenseCodeModalProps = {
   open: boolean;
   setOpen: (value: boolean) => void;
   data: { id: string };
-  getAllData: () => void;
   handleCheckUniqueCode: (value: string) => boolean;
 };
 
@@ -29,6 +29,8 @@ const AddExpenseCodeModal = (props: AddExpenseCodeModalProps) => {
   const [description, setDescription] = useState("");
   const [descriptionError, setDescriptionError] = useState(false);
   const [codeError, setCodeError] = useState<null | CodeErrorType>(null);
+  const { refetch } = useGetAllCategories();
+
   const disabledButton = descriptionError || !!codeError;
 
   const handleClose = () => {
@@ -44,7 +46,7 @@ const AddExpenseCodeModal = (props: AddExpenseCodeModalProps) => {
         code,
         description,
       });
-      await props.getAllData();
+      await refetch();
       setLoading(false);
       handleClose();
       enqueueSnackbar(`Successfully added Expense Code ${code}.`, {

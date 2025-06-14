@@ -2,30 +2,31 @@ import { useState } from "react";
 import { Box, Stack, styled, Typography } from "@mui/material";
 import { useSnackbar } from "notistack";
 
-import { axios } from "@src/api/axios";
+import { axios } from "@api/axios";
 import type { ExpenseCodesProps } from "@src/types";
-import Modal from "@components/Modal";
-import Button from "@components/Button";
+import Modal from "@components/common/Modal";
+import Button from "@components/common/Button";
+import { useGetAllCategories } from "@components/features/category/queries";
 
 type DeleteExpenseCodeModalProps = {
   open: boolean;
   setOpen: (value: boolean) => void;
   data: ExpenseCodesProps & { categoryId: string };
-  getAllData: () => void;
 };
 
 const DeleteExpenseCodeModal = (props: DeleteExpenseCodeModalProps) => {
-  const { open, setOpen, data, getAllData } = props;
+  const { open, setOpen, data } = props;
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(false);
   const handleClose = () => setOpen(false);
+  const { refetch } = useGetAllCategories();
 
   const handleDeleteExpenseCode = async () => {
     try {
       const url = `/api/expense-management/${data.categoryId}/expense-codes/${data.code}`;
       setLoading(true);
       await axios.delete(url);
-      await getAllData();
+      await refetch();
       setLoading(false);
       handleClose();
 

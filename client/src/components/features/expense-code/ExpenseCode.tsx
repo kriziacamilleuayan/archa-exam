@@ -1,13 +1,11 @@
 import { useState } from "react";
-import { IconButton, Stack, Typography } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { IconButton, Stack, Typography } from "@mui/material";
 
 import type { ExpenseCodesProps } from "@src/types";
-import DeleteExpenseCodeModal from "@components/DeleteExpenseCode";
+import DeleteExpenseCodeModal from "@components/features/expense-code/DeleteExpenseCode";
 
-const ExpenseCode = (
-  props: ExpenseCodesProps & { categoryId: string; getAllData: () => void }
-) => {
+const ExpenseCode = (props: ExpenseCodesProps & { categoryId: string }) => {
   const [openDeleteExpenseCodeModal, setOpenDeleteExpenseCodeModal] =
     useState(false);
 
@@ -17,13 +15,17 @@ const ExpenseCode = (
 
   return (
     <>
-      <Stack sx={{ flexDirection: "row", justifyContent: "space-between" }}>
-        <Typography>
+      <Stack
+        px={1}
+        sx={{ flexDirection: "row", justifyContent: "space-between" }}
+      >
+        <Typography color="midnightblue">
           <strong>{props.code}</strong> - {props.description}
         </Typography>
         <IconButton
           aria-label="delete"
           size="small"
+          color="error"
           onClick={handleDeleteExpenseCode}
         >
           <DeleteIcon sx={{ fontSize: "18px" }} />
@@ -34,7 +36,6 @@ const ExpenseCode = (
         open={openDeleteExpenseCodeModal}
         setOpen={setOpenDeleteExpenseCodeModal}
         data={props}
-        getAllData={props.getAllData}
       />
     </>
   );

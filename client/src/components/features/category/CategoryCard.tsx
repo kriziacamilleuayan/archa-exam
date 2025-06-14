@@ -1,21 +1,19 @@
 import { useCallback, useState } from "react";
-import { Card, Stack, styled, Typography } from "@mui/material";
+import { Box, Card, Stack, styled, Typography } from "@mui/material";
 
 import type { CategoryProps } from "@src/types";
-import ExpenseCode from "@components/ExpenseCode";
-import Button from "@components/Button";
-import AddExpenseCodeModal from "@components/AddExpenseCodeModal";
-import DeleteCategoryModal from "@components/DeleteCategory";
+import ExpenseCode from "@components/features/expense-code/ExpenseCode";
+import AddExpenseCodeModal from "@components/features/expense-code/AddExpenseCodeModal";
+import DeleteCategoryModal from "@components/features/category/DeleteCategory";
+import Button from "@components/common/Button";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 
-type CategoryCardProps = CategoryProps & {
-  getAllData: () => void;
-};
+type CategoryCardProps = CategoryProps & {};
 
 const CategoryCard = (props: CategoryCardProps) => {
-  const { title, id } = props;
+  const { title, id, name } = props;
   const [openAddExpenseCodeModal, setOpenAddExpenseCodeModal] = useState(false);
   const [openDeleteCategoryModal, setOpenDeleteCategoryModal] = useState(false);
 
@@ -41,32 +39,36 @@ const CategoryCard = (props: CategoryCardProps) => {
     <>
       <CardComponet variant="outlined">
         <TitleComponent>
-          <Typography
-            variant="h2"
-            sx={{ fontSize: { lg: "2vw", sm: "3vw", xs: "4vw" } }}
-          >
-            {title}
-          </Typography>
-
-          <Button
-            onClick={handleDeleteCategory}
-            startIcon={<DeleteIcon />}
-            color="error"
-          >
-            Delete
-          </Button>
+          <Stack>
+            <Typography component="span" color="gray" fontSize="small">
+              {name}
+            </Typography>
+            <Typography
+              variant="h2"
+              sx={{
+                fontSize: { lg: "2vw", sm: "3vw", xs: "4vw" },
+                color: "midnightblue",
+              }}
+            >
+              {title}
+            </Typography>
+          </Stack>
+          <Box>
+            <Button
+              onClick={handleDeleteCategory}
+              startIcon={<DeleteIcon />}
+              color="error"
+            >
+              Delete
+            </Button>
+          </Box>
         </TitleComponent>
 
         <Stack px={2} spacing={1}>
           <ExpenseCodeComponent>Expense Codes</ExpenseCodeComponent>
 
           {props.expense_codes.map((item, i) => (
-            <ExpenseCode
-              {...item}
-              getAllData={props.getAllData}
-              categoryId={id}
-              key={`expense-code-${i}`}
-            />
+            <ExpenseCode {...item} categoryId={id} key={`expense-code-${i}`} />
           ))}
 
           <Button
@@ -83,7 +85,6 @@ const CategoryCard = (props: CategoryCardProps) => {
       <AddExpenseCodeModal
         open={openAddExpenseCodeModal}
         setOpen={setOpenAddExpenseCodeModal}
-        getAllData={props.getAllData}
         data={{ id }}
         handleCheckUniqueCode={handleCheckUniqueCode}
       />
@@ -91,7 +92,6 @@ const CategoryCard = (props: CategoryCardProps) => {
         open={openDeleteCategoryModal}
         setOpen={setOpenDeleteCategoryModal}
         data={{ id, title }}
-        getAllData={props.getAllData}
       />
     </>
   );
@@ -106,6 +106,7 @@ const CardComponet = styled(Card)({
 
 const TitleComponent = styled(Stack)({
   justifyContent: "space-between",
+  alignItems: "center",
   flexDirection: "row",
   paddingBottom: "1vw",
   borderBottom: "1px solid lightgray",
@@ -114,4 +115,5 @@ const TitleComponent = styled(Stack)({
 const ExpenseCodeComponent = styled(Typography)({
   padding: "14px 0 0",
   color: "gray",
+  fontSize: "14px",
 });

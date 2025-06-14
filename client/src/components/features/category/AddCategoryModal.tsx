@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { axios } from "@api/axios";
 import { Box, Stack, styled, Typography } from "@mui/material";
-import { useSnackbar } from "notistack";
 
-import Input from "@components/Input";
-import Button from "@components/Button";
-import Modal from "@components/Modal";
+import Input from "@components/common/Input";
+import Button from "@components/common/Button";
+import Modal from "@components/common/Modal";
+import { useAddCategoryMutation } from "@components/features/category/mutations";
 
 enum NameErrorType {
   REQUIRED = "REQUIRED",
@@ -16,19 +15,18 @@ enum NameErrorType {
 type AddCategoryModalProps = {
   open: boolean;
   setOpen: (value: boolean) => void;
-  getAllData: () => void;
   handleCheckUnique: (value: string) => boolean;
 };
 
 const AddCategoryModal = (props: AddCategoryModalProps) => {
-  const { enqueueSnackbar } = useSnackbar();
   const { open, setOpen } = props;
-  const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
   const [title, setTitle] = useState("");
   const [nameErrorType, setNameErrorType] = useState<null | NameErrorType>(
     null
   );
+  const { mutateAsync: addCategoryMutateAsync, isPending } =
+    useAddCategoryMutation();
   const disabledButton = !!nameErrorType;
 
   const handleClose = () => {
@@ -38,26 +36,8 @@ const AddCategoryModal = (props: AddCategoryModalProps) => {
   };
 
   const handleAddcategory = async () => {
-    try {
-      setLoading(true);
-      await axios.post("/api/expense-management", {
-        name,
-        title,
-      });
-      await props.getAllData();
-      setLoading(false);
-      handleClose();
-
-      enqueueSnackbar(`Successfully added Category ${title}.`, {
-        variant: "success",
-        autoHideDuration: 3000,
-      });
-    } catch (err) {
-      enqueueSnackbar(
-        `handleAddcategory ERROR: ${(err as any).request.response} `,
-        { variant: "error", autoHideDuration: 3000 }
-      );
-    }
+    await addCategoryMutateAsync({ name, title });
+    handleClose();
   };
 
   const handleChangeName = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,7 +67,7 @@ const AddCategoryModal = (props: AddCategoryModalProps) => {
       return;
     }
 
-    if (!name.match(/^[a-z ]+$/)) {
+    if (!name.match(/^[a-z]+$/)) {
       setNameErrorType(NameErrorType.LOWERCASE);
       return;
     }
@@ -134,7 +114,7 @@ const AddCategoryModal = (props: AddCategoryModalProps) => {
             color="success"
             variant="contained"
             onClick={handleAddcategory}
-            loading={loading}
+            loading={isPending}
             disabled={disabledButton}
           >
             Add
