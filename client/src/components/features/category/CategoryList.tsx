@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, LinearProgress, Stack, styled, Typography } from "@mui/material";
 import { useSnackbar } from "notistack";
 
@@ -25,23 +25,14 @@ const CategoryList = () => {
     setOpenAddCategoryModal(true);
   };
 
-  const handleCheckUnique = useCallback((value: string) => {
-    const existingName =
-      categoryData &&
-      categoryData.find(
-        (item: CategoryProps) => item.name === value.toLowerCase()
-      );
-    return !!existingName;
-  }, []);
-
   useEffect(() => {
     if (error) {
-      enqueueSnackbar(`CategoryList ERROR: ${error.response?.data} `, {
+      enqueueSnackbar(`Fetch Category List ERROR: ${error.response?.data} `, {
         variant: "error",
         autoHideDuration: 3000,
       });
     }
-  }, [error]);
+  }, [enqueueSnackbar, error]);
 
   return (
     <Container>
@@ -73,7 +64,6 @@ const CategoryList = () => {
       <AddCategoryModal
         open={openAddCategoryModal}
         setOpen={setOpenAddCategoryModal}
-        handleCheckUnique={handleCheckUnique}
       />
     </Container>
   );

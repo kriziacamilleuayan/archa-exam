@@ -5,12 +5,12 @@ import Input from "@components/common/Input";
 import Button from "@components/common/Button";
 import Modal from "@components/common/Modal";
 import { useAddExpenseCodeMutation } from "@components/features/expense-code/mutation";
+import type { ExpenseCodesProps } from "@src/types";
 
 type AddExpenseCodeModalProps = {
   open: boolean;
   setOpen: (value: boolean) => void;
-  data: { id: string };
-  handleCheckUniqueCode: (value: string) => boolean;
+  data: { id: string; expense_codes: ExpenseCodesProps[] };
 };
 
 enum CodeErrorType {
@@ -54,6 +54,13 @@ const AddExpenseCodeModal = (props: AddExpenseCodeModalProps) => {
     setDescription(value);
   };
 
+  const handleCheckUniqueCode = useMemo(() => {
+    const existingCode = data.expense_codes.findIndex(
+      (item) => item.code.toLowerCase() === code.toLowerCase()
+    );
+    return existingCode && existingCode < 0;
+  }, [code, data.expense_codes]);
+
   const codeHelperText = useMemo(() => {
     switch (codeError) {
       case CodeErrorType.UNIQUE:
@@ -80,13 +87,13 @@ const AddExpenseCodeModal = (props: AddExpenseCodeModalProps) => {
       return;
     }
 
-    if (props.handleCheckUniqueCode(code)) {
+    if (!handleCheckUniqueCode) {
       setCodeError(CodeErrorType.UNIQUE);
       return;
     }
 
     setCodeError(null);
-  }, [code, props]);
+  }, [code, handleCheckUniqueCode, props]);
 
   useEffect(() => {
     if (description.trim() === "") {

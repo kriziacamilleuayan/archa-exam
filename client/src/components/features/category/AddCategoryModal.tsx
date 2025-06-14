@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Box, Stack, styled, Typography } from "@mui/material";
 
+import type { CategoryProps } from "@src/types";
 import Input from "@components/common/Input";
 import Button from "@components/common/Button";
 import Modal from "@components/common/Modal";
 import { useAddCategoryMutation } from "@components/features/category/mutations";
+import { useGetAllCategories } from "@components/features/category/queries";
 
 enum NameErrorType {
   REQUIRED = "REQUIRED",
@@ -15,7 +17,6 @@ enum NameErrorType {
 type AddCategoryModalProps = {
   open: boolean;
   setOpen: (value: boolean) => void;
-  handleCheckUnique: (value: string) => boolean;
 };
 
 const AddCategoryModal = (props: AddCategoryModalProps) => {
@@ -27,6 +28,7 @@ const AddCategoryModal = (props: AddCategoryModalProps) => {
   );
   const { mutateAsync: addCategoryMutateAsync, isPending } =
     useAddCategoryMutation();
+  const { data: categoryData } = useGetAllCategories();
   const disabledButton = !!nameErrorType;
 
   const handleClose = () => {
@@ -61,6 +63,15 @@ const AddCategoryModal = (props: AddCategoryModalProps) => {
     }
   }, [nameErrorType]);
 
+  const handleCheckUnique = useMemo(() => {
+    const existingName =
+      categoryData &&
+      categoryData.findIndex(
+        (item: CategoryProps) => item.name === name.toLowerCase()
+      );
+    return existingName && existingName < 0;
+  }, [categoryData, name]);
+
   useEffect(() => {
     if (name.trim() === "") {
       setNameErrorType(NameErrorType.REQUIRED);
@@ -72,13 +83,13 @@ const AddCategoryModal = (props: AddCategoryModalProps) => {
       return;
     }
 
-    if (props.handleCheckUnique(name)) {
+    if (!handleCheckUnique) {
       setNameErrorType(NameErrorType.UNIQUE);
       return;
     }
 
     setNameErrorType(null);
-  }, [name, props]);
+  }, [handleCheckUnique, name]);
 
   return (
     <Modal open={open} handleClose={handleClose}>
