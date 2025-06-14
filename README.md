@@ -20,7 +20,7 @@ yarn
 ```
 yarn start
 ```
-- run this at `archa-exam` directory 
+- run this within `archa-exam` directory 
 - client will run at port `3000` 
 - server will run at port `3200`
 
@@ -30,6 +30,13 @@ yarn workspace client test
 yarn workspace client test:ui
 ```
 - client-side only
+
+## Add/Remove packages
+```
+yarn workspace <workspace name> add <package>
+yarn workspace <workspace name> remove <package>
+```
+- run this within `archa-exam` directory 
 
 ## Dependencies
 
